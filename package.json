@@ -1,0 +1,9 @@
+{
+  "name": "tab-arcade",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter \"@tab-arcade/*\" --parallel dev",
+    "build": "pnpm --filter \"@tab-arcade/*\" build",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
+  }
+}
