@@ -6,6 +6,7 @@ import { AVAILABLE_GAMES } from '@tab-arcade/shared';
 import type { RoomState } from '@tab-arcade/shared';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { AlmostSame } from '../games/AlmostSame';
+import { ClueCollision } from '../games/ClueCollision';
 
 export default function Room() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -185,6 +186,9 @@ export default function Room() {
         {room.currentGame === AVAILABLE_GAMES.ALMOST_SAME && (
           <AlmostSame room={room} me={me} />
         )}
+        {room.currentGame === AVAILABLE_GAMES.CLUE_COLLISION && (
+          <ClueCollision room={room} me={me} />
+        )}
       </div>
     );
   }
@@ -279,18 +283,21 @@ export default function Room() {
                     </p>
                   </button>
 
-                  <div className="opacity-40 cursor-not-allowed border border-border rounded-xl p-5">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center text-textMuted mb-4">
-                      <Brain size={20} />
-                    </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-bold text-textMain text-sm">Clue Collision</p>
-                      <span className="text-[10px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded">Soon</span>
-                    </div>
-                    <p className="text-xs text-textMuted leading-relaxed">
-                      Give clues — but duplicate clues get deleted before the guesser sees them.
-                    </p>
-                  </div>
+                  <button
+                      onClick={() => startGame(AVAILABLE_GAMES.CLUE_COLLISION)}
+                      className="group text-left border border-border rounded-xl p-5 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 active:scale-[0.98]"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-blue-100 flex items-center justify-center text-textMuted group-hover:text-blue-600 mb-4 transition-colors">
+                        <Brain size={20} />
+                      </div>
+                      <p className="font-bold text-textMain text-sm mb-1">Clue Collision</p>
+                      <p className="text-xs text-textMuted leading-relaxed">
+                        Give clues — but duplicate clues get deleted before the guesser sees them.
+                      </p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Start this game →
+                      </p>
+                    </button>
                 </div>
               </>
             ) : (

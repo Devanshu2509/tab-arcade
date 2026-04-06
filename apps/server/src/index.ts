@@ -7,6 +7,7 @@ import { RoomState, Player } from '@tab-arcade/shared';
 // Import Game Engines
 import { GameEngine } from './games/GameEngine';
 import { AlmostSameEngine } from './games/AlmostSameEngine';
+import { ClueCollisionEngine } from './games/ClueCollisionEngine';
 
 const app = express();
 app.use(cors());
@@ -27,7 +28,7 @@ const getRandomColor = () => {
 // Map Game IDs to their specific Engine logic
 const GAME_ENGINES: Record<string, GameEngine> = {
   'almost_same': AlmostSameEngine,
-  // 'clue_collision': ClueCollisionEngine, <-- Future games go here!
+  'clue_collision': ClueCollisionEngine,
 };
 
 io.on('connection', (socket) => {
