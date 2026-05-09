@@ -8,6 +8,8 @@ import { RoomState, Player } from '@tab-arcade/shared';
 import { GameEngine } from './games/GameEngine';
 import { AlmostSameEngine } from './games/AlmostSameEngine';
 import { ClueCollisionEngine } from './games/ClueCollisionEngine';
+import { RankingSaboteurEngine } from './games/RankingSaboteurEngine';
+import { LocationGuesserEngine } from './games/LocationGuesserEngine';
 
 const app = express();
 app.use(cors());
@@ -29,6 +31,8 @@ const getRandomColor = () => {
 const GAME_ENGINES: Record<string, GameEngine> = {
   'almost_same': AlmostSameEngine,
   'clue_collision': ClueCollisionEngine,
+  'ranking_saboteur': RankingSaboteurEngine,
+  'location_guesser': LocationGuesserEngine,
 };
 
 io.on('connection', (socket) => {
@@ -36,7 +40,6 @@ io.on('connection', (socket) => {
 
   // ✅ CREATE ROOM
   socket.on('create_room', (data: { playerName: string, playerId: string }, callback) => {
-    // ... (Keep your existing create_room code here) ...
     try {
       const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
       const newPlayer: Player = {
@@ -58,7 +61,6 @@ io.on('connection', (socket) => {
 
   // ✅ JOIN ROOM
   socket.on('join_room', (data: { roomId: string, playerName: string, playerId: string }, callback) => {
-    // ... (Keep your existing idempotent join_room code here) ...
     try {
       const room = rooms.get(data.roomId);
       if (!room) return callback({ success: false, message: 'Room not found' });
@@ -127,20 +129,39 @@ io.on('connection', (socket) => {
   });
 
   // ✅ IN-GAME ACTIONS (Delegated to specific Game Engine)
-  socket.on('game_action', (data: { roomId: string, action: string, payload?: any }, callback) => {
+  // FIX: Notice that `action` is now typed as an object { type: string, payload?: any }
+  socket.on('game_action', (data: { roomId: string, action: { type: string, payload?: any } }, callback) => {
     try {
       const room = rooms.get(data.roomId);
-      if (!room || !room.currentGame) return;
+      if (!room) return;
 
       const playerId = (socket as any).playerId;
-      const engine = GAME_ENGINES[room.currentGame];
 
-      if (engine) {
-        // Let the engine process the action and modify the room state
-        engine.handleAction(room, playerId, data.action, data.payload);
-        
-        // Broadcast the updated state to everyone
-        io.to(data.roomId).emit('room_updated', room);
+      // ── GLOBAL ACTION INTERCEPTOR ──
+      // This makes the Exit Game button work regardless of the active game!
+      if (data.action.type === 'back_to_lobby') {
+        const player = room.players.find(p => p.id === playerId);
+        // Only the host can manually exit the game
+        if (player?.isHost) {
+          room.status = 'lobby';
+          room.currentGame = null;
+          room.gameState = null;
+          io.to(data.roomId).emit('room_updated', room);
+        }
+        if (callback) callback({ success: true });
+        return; // Stop here, do not pass to game engine
+      }
+
+      // ── GAME SPECIFIC ROUTING ──
+      if (room.currentGame) {
+        const engine = GAME_ENGINES[room.currentGame];
+        if (engine) {
+          // Pass the destructured action type and payload to the specific engine
+          engine.handleAction(room, playerId, data.action.type, data.action.payload);
+          
+          // Broadcast the updated state to everyone
+          io.to(data.roomId).emit('room_updated', room);
+        }
       }
       
       if (callback) callback({ success: true });
@@ -151,7 +172,6 @@ io.on('connection', (socket) => {
 
   // ✅ DISCONNECT
   socket.on('disconnect', () => {
-    // ... (Keep your existing disconnect code here) ...
     const playerId = (socket as any).playerId;
     if (!playerId) return; 
 

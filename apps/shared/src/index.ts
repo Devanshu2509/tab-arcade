@@ -27,5 +27,6 @@ export interface RoomState {
 export const AVAILABLE_GAMES = {
   ALMOST_SAME: 'almost_same',
   CLUE_COLLISION: 'clue_collision',
-  RANKING_SABOTEUR: 'ranking_saboteur'
+  RANKING_SABOTEUR: 'ranking_saboteur',
+  LOCATION_GUESSER: 'location_guesser'
 };

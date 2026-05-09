@@ -1,12 +1,14 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, Copy, Check, Gamepad2, Ghost, Loader2, Brain, ArrowRight } from 'lucide-react';
+import { Users, Copy, Check, Gamepad2, Ghost, Loader2, Brain, ArrowRight, ListOrdered, MapPin ,LogOut} from 'lucide-react';
 import { socket } from '../lib/socket';
 import { AVAILABLE_GAMES } from '@tab-arcade/shared';
 import type { RoomState } from '@tab-arcade/shared';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { AlmostSame } from '../games/AlmostSame';
 import { ClueCollision } from '../games/ClueCollision';
+import { RankingSaboteur } from '../games/RankingSaboteur';
+import { LocationGuesser } from '../games/LocationGuesser';
 
 export default function Room() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -26,7 +28,6 @@ export default function Room() {
   const joinRoom = useCallback(() => {
     if (!name.trim()) return; 
     
-    // Prevent spamming the server
     if (joinAttempted.current) return;
     joinAttempted.current = true;
     
@@ -34,7 +35,7 @@ export default function Room() {
 
     if (!socket.connected) {
       socket.once('connect', () => {
-        joinAttempted.current = false; // Reset so they can try again once connected
+        joinAttempted.current = false; 
         joinRoom();
       });
       return;
@@ -44,7 +45,7 @@ export default function Room() {
       setJoining(false);
       
       if (!res?.success) {
-        joinAttempted.current = false; // Allow retry if it failed
+        joinAttempted.current = false; 
       }
       
       if (res?.success) {
@@ -56,7 +57,6 @@ export default function Room() {
   }, [roomId, name, playerId]);
 
   useEffect(() => {
-    // Only attempt to join if we haven't already and we have a name
     if (name.trim() && !joinAttempted.current) {
       joinRoom();
     }
@@ -89,6 +89,11 @@ export default function Room() {
     socket.emit('start_game', { roomId, gameId }, (res: any) => {
       if (!res?.success) alert(res?.message || 'Failed to start game');
     });
+  };
+
+  // Centralized action sender passed to active games
+  const sendAction = (type: string, payload?: any) => {
+    socket.emit('game_action', { roomId, action: { type, payload } });
   };
 
   const handleNameSubmit = (e: React.FormEvent) => {
@@ -156,8 +161,7 @@ export default function Room() {
 
   const me = room.players.find(p => p.id === playerId);
 
-  // ── Active Game View ──
-  if (room.status === 'playing') {
+ if (room.status === 'playing') {
     return (
       <div className="animate-in fade-in duration-300">
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
@@ -178,16 +182,37 @@ export default function Room() {
               ))}
             </div>
           </div>
-          <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-            Playing
-          </span>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent hidden sm:inline-block">
+              Playing
+            </span>
+            {me?.isHost && (
+                <button 
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to end this game for everyone and return to the lobby?")) {
+                      sendAction('back_to_lobby');
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border border-red-200 rounded-lg text-xs font-bold transition-colors shadow-sm"
+                >
+                  <LogOut size={14} /> Exit Game
+                </button>
+              )}
+          </div>
         </div>
 
         {room.currentGame === AVAILABLE_GAMES.ALMOST_SAME && (
-          <AlmostSame room={room} me={me} />
+          <AlmostSame room={room} me={me} sendAction={sendAction} />
         )}
         {room.currentGame === AVAILABLE_GAMES.CLUE_COLLISION && (
-          <ClueCollision room={room} me={me} />
+          <ClueCollision room={room} me={me} sendAction={sendAction} />
+        )}
+        {room.currentGame === AVAILABLE_GAMES.RANKING_SABOTEUR && (
+          <RankingSaboteur room={room} me={me} sendAction={sendAction} />
+        )}
+        {room.currentGame === AVAILABLE_GAMES.LOCATION_GUESSER && (
+          <LocationGuesser room={room} me={me} sendAction={sendAction} />
         )}
       </div>
     );
@@ -267,6 +292,7 @@ export default function Room() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* ALMOST SAME */}
                   <button
                     onClick={() => startGame(AVAILABLE_GAMES.ALMOST_SAME)}
                     className="group text-left border border-border rounded-xl p-5 hover:border-accent hover:bg-accent/5 transition-all duration-200 active:scale-[0.98]"
@@ -283,21 +309,56 @@ export default function Room() {
                     </p>
                   </button>
 
+                  {/* CLUE COLLISION */}
                   <button
-                      onClick={() => startGame(AVAILABLE_GAMES.CLUE_COLLISION)}
-                      className="group text-left border border-border rounded-xl p-5 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 active:scale-[0.98]"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-blue-100 flex items-center justify-center text-textMuted group-hover:text-blue-600 mb-4 transition-colors">
-                        <Brain size={20} />
-                      </div>
-                      <p className="font-bold text-textMain text-sm mb-1">Clue Collision</p>
-                      <p className="text-xs text-textMuted leading-relaxed">
-                        Give clues — but duplicate clues get deleted before the guesser sees them.
-                      </p>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Start this game →
-                      </p>
-                    </button>
+                    onClick={() => startGame(AVAILABLE_GAMES.CLUE_COLLISION)}
+                    className="group text-left border border-border rounded-xl p-5 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-blue-100 flex items-center justify-center text-textMuted group-hover:text-blue-600 mb-4 transition-colors">
+                      <Brain size={20} />
+                    </div>
+                    <p className="font-bold text-textMain text-sm mb-1">Clue Collision</p>
+                    <p className="text-xs text-textMuted leading-relaxed">
+                      Give clues — but duplicate clues get deleted before the guesser sees them.
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Start this game →
+                    </p>
+                  </button>
+
+                  {/* RANKING SABOTEUR */}
+                  <button
+                    onClick={() => startGame(AVAILABLE_GAMES.RANKING_SABOTEUR)}
+                    className="group text-left border border-border rounded-xl p-5 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-purple-100 flex items-center justify-center text-textMuted group-hover:text-purple-600 mb-4 transition-colors">
+                      <ListOrdered size={20} />
+                    </div>
+                    <p className="font-bold text-textMain text-sm mb-1">Ranking Saboteur</p>
+                    <p className="text-xs text-textMuted leading-relaxed">
+                      Sort the list correctly together. Spot the one person trying to ruin it.
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-purple-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Start this game →
+                    </p>
+                  </button>
+
+                  {/* LOCATION GUESSER */}
+                  <button
+                    onClick={() => startGame(AVAILABLE_GAMES.LOCATION_GUESSER)}
+                    className="group text-left border border-border rounded-xl p-5 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-emerald-100 flex items-center justify-center text-textMuted group-hover:text-emerald-600 mb-4 transition-colors">
+                      <MapPin size={20} />
+                    </div>
+                    <p className="font-bold text-textMain text-sm mb-1">Location Guesser</p>
+                    <p className="text-xs text-textMuted leading-relaxed">
+                      Explore the street view and drop your pin closest to the true location.
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Start this game →
+                    </p>
+                  </button>
                 </div>
               </>
             ) : (

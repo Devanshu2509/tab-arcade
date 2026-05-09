@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ArrowRight, Ghost, Brain, ListOrdered, Loader2 } from 'lucide-react';
+import { Plus, ArrowRight, Ghost, Brain, ListOrdered, MapPin, Loader2 } from 'lucide-react';
 import { socket } from '../lib/socket';
 import { usePlayerStore } from '../store/usePlayerStore';
 
@@ -42,8 +42,8 @@ export default function Home() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500">
-      <div className="max-w-2xl">
+    <div className="animate-in fade-in duration-500 w-full max-w-4xl mx-auto">
+      <div>
         <div className="mb-12">
           <h2 className="text-5xl md:text-6xl font-display font-black tracking-tight text-textMain leading-[1.05] mb-4">
             Multiplayer chaos.<br />No downloads.
@@ -53,7 +53,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="bg-surface border border-border rounded-2xl p-6 md:p-8 mb-16 shadow-soft">
+        <div className="bg-surface border border-border rounded-2xl p-6 md:p-8 mb-16 shadow-soft max-w-2xl">
           <div className="mb-6">
             <label className="block text-xs font-bold tracking-widest uppercase text-textMuted mb-2">
               Your Nickname
@@ -76,7 +76,7 @@ export default function Home() {
             <button
               onClick={handleCreateRoom}
               disabled={isCreating}
-              className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accentHover disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-150 active:scale-[0.98]"
+              className="flex-1 flex items-center justify-center gap-2 cursor-pointer bg-accent hover:bg-accentHover disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-150 active:scale-[0.98]"
             >
               {isCreating
                 ? <Loader2 size={18} className="animate-spin" />
@@ -99,7 +99,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isJoining}
-                className="bg-textMain hover:bg-black disabled:opacity-60 text-white px-4 py-3 rounded-xl transition-all duration-150 active:scale-[0.98] flex items-center justify-center"
+                className="bg-black  disabled:opacity-60 text-white cursor-pointer px-4 py-3 rounded-xl  active:scale-[0.98] flex items-center justify-center"
               >
                 {isJoining
                   ? <Loader2 size={18} className="animate-spin" />
@@ -114,26 +114,34 @@ export default function Home() {
           <p className="text-xs font-bold tracking-widest uppercase text-textMuted mb-5">
             Games Available
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <GameCard
               title="Almost Same"
               desc="Find the player with the slightly different word."
               icon={<Ghost size={20} />}
               tag="4–8 players"
+              colorClass="group-hover:bg-accent/10 group-hover:text-accent"
             />
             <GameCard
               title="Clue Collision"
               desc="Give clues, but duplicates get wiped."
               icon={<Brain size={20} />}
               tag="3–8 players"
-              locked
+              colorClass="group-hover:bg-blue-100 group-hover:text-blue-600"
             />
             <GameCard
               title="Ranking Saboteur"
-              desc="Sort the list. Spot the liar."
+              desc="Sort the list correctly. Spot the liar."
               icon={<ListOrdered size={20} />}
               tag="4–10 players"
-              locked
+              colorClass="group-hover:bg-purple-100 group-hover:text-purple-600"
+            />
+            <GameCard
+              title="Location Guesser"
+              desc="Explore the street view and drop your pin."
+              icon={<MapPin size={20} />}
+              tag="2–10 players"
+              colorClass="group-hover:bg-emerald-100 group-hover:text-emerald-600"
             />
           </div>
         </div>
@@ -143,24 +151,24 @@ export default function Home() {
 }
 
 function GameCard({
-  title, desc, icon, tag, locked = false
+  title, desc, icon, tag, locked = false, colorClass = "group-hover:bg-accent/10 group-hover:text-accent"
 }: {
   title: string;
   desc: string;
   icon: React.ReactNode;
   tag: string;
   locked?: boolean;
+  colorClass?: string;
 }) {
   return (
     <div className={`group bg-surface border border-border rounded-2xl p-5 transition-all duration-300 ${
       locked
         ? 'opacity-50 cursor-not-allowed'
-        : 'cursor-pointer hover:-translate-y-1 hover:border-zinc-300'
+        : 'cursor-default hover:-translate-y-1 hover:border-zinc-300 hover:shadow-lg'
     }`}
-    style={!locked ? { boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)' } : undefined}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-textMuted transition-colors ${
-        locked ? 'bg-zinc-100' : 'bg-zinc-100 group-hover:bg-accent/10 group-hover:text-accent'
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-textMuted transition-colors bg-zinc-100 ${
+        !locked && colorClass
       }`}>
         {icon}
       </div>

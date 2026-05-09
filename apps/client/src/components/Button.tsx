@@ -15,7 +15,7 @@ export function Button({
   const baseStyles = "inline-flex items-center justify-center cursor-pointer font-medium rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-textMain text-white hover:bg-black", // Stark black button, very modern
+    primary: "bg-textMain text-black hover:bg-black", // Stark black button, very modern
     secondary: "bg-surface text-textMain border border-border hover:bg-gray-50",
     ghost: "bg-transparent text-textMuted hover:text-textMain hover:bg-gray-100"
   };
