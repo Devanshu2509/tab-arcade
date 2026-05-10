@@ -118,7 +118,7 @@ export function AlmostSame({ room, me }: AlmostSameProps) {
                     onClick={() => setSelectedRounds(num)}
                     className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${
                       selectedRounds === num 
-                        ? 'border-textMain bg-textMain text-white' 
+                        ? 'border-textMain bg-black text-white' 
                         : 'border-border text-textMuted hover:border-zinc-300 hover:text-textMain'
                     }`}
                   >
@@ -176,7 +176,7 @@ export function AlmostSame({ room, me }: AlmostSameProps) {
           {me.isHost ? (
             <button
               onClick={() => sendAction('start_voting')}
-              className="mt-12 bg-textMain hover:bg-black text-white px-8 py-3.5 rounded-xl font-bold transition-all active:scale-95 flex items-center gap-2 shadow-lg"
+              className="mt-12 bg-black hover:bg-black text-white px-8 py-3.5 rounded-xl font-bold transition-all active:scale-95 flex items-center gap-2 shadow-lg"
             >
               Start Voting Phase <ArrowRight size={18} />
             </button>
@@ -223,7 +223,7 @@ export function AlmostSame({ room, me }: AlmostSameProps) {
                   }`}
                 >
                   {isMyVote && (
-                    <div className="absolute -top-2 -right-2 bg-textMain text-white rounded-full p-0.5 animate-in zoom-in">
+                    <div className="absolute -top-2 -right-2 bg-black text-white rounded-full p-0.5 animate-in zoom-in">
                       <CheckCircle2 size={20} />
                     </div>
                   )}
@@ -328,7 +328,7 @@ export function AlmostSame({ room, me }: AlmostSameProps) {
           {me.isHost && (
             <button
               onClick={() => sendAction('next_round')}
-              className="w-full sm:w-auto mx-auto flex items-center justify-center gap-2 bg-textMain hover:bg-black text-white px-8 py-3.5 rounded-xl font-bold transition-all active:scale-95"
+              className="w-full sm:w-auto mx-auto flex items-center justify-center gap-2 bg-black hover:bg-black text-white px-8 py-3.5 rounded-xl font-bold transition-all active:scale-95"
             >
               {isFinalRound ? 'View Final Leaderboard' : `Start Round ${currentRound + 1}`} <ArrowRight size={18} />
             </button>
@@ -379,7 +379,7 @@ export function AlmostSame({ room, me }: AlmostSameProps) {
         {me.isHost && (
           <button
             onClick={() => sendAction('back_to_lobby')}
-            className="flex items-center justify-center gap-2 bg-textMain hover:bg-black text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 shadow-lg w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 bg-black hover:bg-black text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 shadow-lg w-full sm:w-auto"
           >
             <Home size={18} /> Return to Lobby
           </button>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, Copy, Check, Gamepad2, Ghost, Loader2, Brain, ArrowRight, ListOrdered, MapPin ,LogOut} from 'lucide-react';
+import { Users, Copy, Check, Gamepad2, Ghost, Loader2, Brain, ArrowRight, ListOrdered, MapPin, LogOut, Grid3X3 } from 'lucide-react';
 import { socket } from '../lib/socket';
 import { AVAILABLE_GAMES } from '@tab-arcade/shared';
 import type { RoomState } from '@tab-arcade/shared';
@@ -9,6 +9,8 @@ import { AlmostSame } from '../games/AlmostSame';
 import { ClueCollision } from '../games/ClueCollision';
 import { RankingSaboteur } from '../games/RankingSaboteur';
 import { LocationGuesser } from '../games/LocationGuesser';
+import { Bingo } from '../games/Bingo';
+import { TicTacToe } from '../games/TicTacToe';
 
 export default function Room() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -214,6 +216,12 @@ export default function Room() {
         {room.currentGame === AVAILABLE_GAMES.LOCATION_GUESSER && (
           <LocationGuesser room={room} me={me} sendAction={sendAction} />
         )}
+        {room.currentGame === AVAILABLE_GAMES.BINGO && (
+          <Bingo room={room} me={me} sendAction={sendAction} />
+        )}
+        {room.currentGame === AVAILABLE_GAMES.TIC_TAC_TOE && (
+          <TicTacToe room={room} me={me} sendAction={sendAction} />
+        )}
       </div>
     );
   }
@@ -359,6 +367,41 @@ export default function Room() {
                       Start this game →
                     </p>
                   </button>
+
+                  {/* BINGO */}
+                  <button
+                    onClick={() => startGame(AVAILABLE_GAMES.BINGO)}
+                    className="group text-left border border-border rounded-xl p-5 hover:border-amber-500 hover:bg-amber-50 transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-amber-100 flex items-center justify-center text-textMuted group-hover:text-amber-600 mb-4 transition-colors">
+                      <Check size={20} />
+                    </div>
+                    <p className="font-bold text-textMain text-sm mb-1">Bingo</p>
+                    <p className="text-xs text-textMuted leading-relaxed">
+                      Auto-drawing 5x5 Bingo. Dab your board, race to 5-in-a-row, and yell Bingo!
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Start this game →
+                    </p>
+                  </button>
+
+                  {/* TEAM TIC-TAC-TOE */}
+                  <button
+                    onClick={() => startGame(AVAILABLE_GAMES.TIC_TAC_TOE)}
+                    className="group text-left border border-border rounded-xl p-5 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 active:scale-[0.98]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover:bg-blue-100 flex items-center justify-center text-textMuted group-hover:text-blue-600 mb-4 transition-colors">
+                      <Grid3X3 size={20} />
+                    </div>
+                    <p className="font-bold text-textMain text-sm mb-1">Team Tic-Tac-Toe</p>
+                    <p className="text-xs text-textMuted leading-relaxed">
+                      Split into two teams and take turns placing X's and O's on a giant board.
+                    </p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Start this game →
+                    </p>
+                  </button>
+
                 </div>
               </>
             ) : (

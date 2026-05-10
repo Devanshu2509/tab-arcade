@@ -266,7 +266,7 @@ export function ClueCollision({ room, me }: Props) {
           </div>
 
           {me.isHost && (
-            <button onClick={() => sendAction('next_round')} className="w-full bg-textMain hover:bg-black text-white py-4 rounded-xl font-bold transition-all active:scale-95 flex justify-center items-center gap-2">
+            <button onClick={() => sendAction('next_round')} className="w-full bg-black hover:bg-black text-white py-4 rounded-xl font-bold transition-all active:scale-95 flex justify-center items-center gap-2">
               {currentRound === totalRounds ? 'View Final Leaderboard' : 'Next Round'} <ArrowRight size={18} />
             </button>
           )}
@@ -296,7 +296,7 @@ export function ClueCollision({ room, me }: Props) {
           ))}
         </div>
         {me.isHost && (
-          <button onClick={() => sendAction('back_to_lobby')} className="flex items-center justify-center gap-2 bg-textMain text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 shadow-lg w-full sm:w-auto"><Home size={18} /> Return to Lobby</button>
+          <button onClick={() => sendAction('back_to_lobby')} className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 shadow-lg w-full sm:w-auto"><Home size={18} /> Return to Lobby</button>
         )}
       </div>
     );

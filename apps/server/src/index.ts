@@ -10,6 +10,8 @@ import { AlmostSameEngine } from './games/AlmostSameEngine';
 import { ClueCollisionEngine } from './games/ClueCollisionEngine';
 import { RankingSaboteurEngine } from './games/RankingSaboteurEngine';
 import { LocationGuesserEngine } from './games/LocationGuesserEngine';
+import { BingoEngine } from './games/BingoEngine';
+import { TicTacToeEngine } from './games/TicTacToeEngine';
 
 const app = express();
 app.use(cors());
@@ -33,6 +35,8 @@ const GAME_ENGINES: Record<string, GameEngine> = {
   'clue_collision': ClueCollisionEngine,
   'ranking_saboteur': RankingSaboteurEngine,
   'location_guesser': LocationGuesserEngine,
+  'bingo': BingoEngine,
+  'tic_tac_toe': TicTacToeEngine,
 };
 
 io.on('connection', (socket) => {
